@@ -1,4 +1,3 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QueryBuilder.Attributes;
 using QueryBuilder.Implementations;
@@ -9,6 +8,13 @@ namespace QueryBuilder.UnitTests
     public class ArraySpecificQueryBuilderUnitTest
     {
         #region Test Models
+        [QueryRequest("/api")]
+        internal class ArrayTestModel
+        {
+            [QueryStringPart("user")]
+            public string[] Users { get; set; }
+        }
+
         internal class SimpleTestModelWithIgnore
         {
             public int Id { get; set; }
@@ -120,6 +126,17 @@ namespace QueryBuilder.UnitTests
             var expected = "/api/somevalue/qwerty/others?user=Roman&Age=321";
 
             var query = builder.BuildQuery(new ComplexTestModel() { User = "Roman", Id = "qwerty", Age = 321, ProperyInside = "somevalue" });
+
+            Assert.AreEqual(expected, query);
+        }
+
+        [TestMethod]
+        public void BuildQueryParametres_WithArrayValidModel_ReturnsValidQuery()
+        {
+            var builder = new ArraySpecificQueryBuilder();
+            var expected = "/api?user=Roman&user=Richard&user=Some%20One%20Else";
+
+            var query = builder.BuildQuery(new ArrayTestModel() { Users = new string[] {"Roman", "Richard", "Some One Else" } });
 
             Assert.AreEqual(expected, query);
         }
